@@ -2,71 +2,36 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>Map and Details</title>
+    <title>DBKL Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.min.js"></script>
 
     <style>
-      body { 
-        display: flex; 
-        margin: 0; 
-        font-family: Arial, sans-serif; 
-      }
-      #map-container { 
-        flex: 1; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-      }
-      #map { 
-        width: 1000px; 
-        height: 800px; 
-        border: 2px solid #000000; 
-        border-radius: 8px; 
-      }
-      #details { 
-        flex: 1; 
-        padding: 20px; 
-      }
-      #legend {
-        margin-top: 20px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-      }
-      .legend-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .color-box {
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        border-radius: 3px;
-      }
-      .custom-marker {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
+      body { display: flex; margin: 0; font-family: Arial, sans-serif; }
+      #map-container { flex: 1; display: flex; align-items: center; justify-content: center; }
+      #map { width: 1000px; height: 800px; border: 2px solid #000000; border-radius: 8px; }
+      #details { flex: 1; padding: 20px; }
+      #legend { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9; }
+      .legend-item { display: flex; align-items: center; margin-bottom: 8px; }
+      .color-box { width: 20px; height: 20px; margin-right: 10px; border-radius: 3px; }
+      .custom-marker { display: flex; align-items: center; justify-content: center; }
       .color-red { background-color: red; }
       .color-yellow { background-color: #FFC000; }
       .color-green { background-color: green; }
+      #logout-button { position: absolute; top: 10px; right: 10px; padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+      #logout-button:hover { background-color: #d32f2f; }
     </style>
   </head>
   <body>
+    <button id="logout-button" onclick="logout()">Logout</button>
     <div id="map-container">
       <div id="map"></div>
     </div>
     <div id="details">
       <h2>Details</h2>
-      <p>Status</p>
-
+      <p id="shopDetails">Click on a marker to see details.</p>
       <!-- Legend Box -->
       <div id="legend">
         <h3>Tenant Status</h3>
@@ -86,6 +51,11 @@
     </div>
     
     <script>
+      function logout() {
+      window.location.href = '/logout';
+    }
+
+
       const key = 'zkJF1VBBugMSwdBfSj6r';
       const map = L.map('map').setView([5.397465532742651, 100.33539585177498], 13);
 
@@ -110,48 +80,49 @@
         { name: 'BebeButterfly Greenlane', coords: [5.390181808360095, 100.30246911942116], status: 'incomplete' }
       ];
 
+      const updateDetails = (shop) => {
+        document.getElementById('shopDetails').innerHTML = `
+          <strong>Shop Name:</strong> ${shop.name}<br>
+          <strong>Status:</strong> ${shop.status.charAt(0).toUpperCase() + shop.status.slice(1)}<br>
+          <strong>Coordinates:</strong> (${shop.coords[0]}, ${shop.coords[1]})
+        `;
+      };
+      
+
       rentalShops.forEach(shop => {
-        // Default marker
-        // const marker = L.marker(shop.coords).addTo(map).bindPopup(shop.name);
-        
-        // Apply marker color based on status
         let color;
         if (shop.status === 'fail') color = 'red';
         else if (shop.status === 'incomplete') color = '#FFC000';
         else if (shop.status === 'success') color = 'green';
 
         const customMarker = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="
-              width: 20px; 
-              height: 20px; 
-              background-color: ${color}; 
-              border-radius: 50% 50% 50% 0;
-              border: 2px solid black; 
-              transform: rotate(-45deg);
-              position: relative;">
-              <div style="
-                position: absolute; 
-                width: 6px; 
-                height: 6px; 
-                background: white; 
-                border-radius: 50%; 
-                top: 6px; 
-                left: 6px;">
-              </div>
-           </div>`,
-    iconSize: [25, 25],
-    iconAnchor: [10, 24] // Anchors the icon bottom center
-  });
+          className: 'custom-marker',
+          html: `<div style="
+            width: 20px; 
+            height: 20px; 
+            background-color: ${color}; 
+            border-radius: 50% 50% 50% 0;
+            border: 2px solid black; 
+            transform: rotate(-45deg);
+            position: relative;">
+            <div style="
+              position: absolute; 
+              width: 6px; 
+              height: 6px; 
+              background: white; 
+              border-radius: 50%; 
+              top: 6px; 
+              left: 6px;">
+            </div>
+          </div>`,
+          iconSize: [25, 25],
+          iconAnchor: [10, 24] 
+        });
 
-      L.marker(shop.coords, { icon: customMarker })
-        .addTo(map)
-        .bindPopup(shop.name);
-    });
-      // Use CSS styling for color if needed
-      //   marker.getElement().style.filter = `hue-rotate(${color === 'red' ? 0 : color === 'yellow' ? 60 : 120}deg)`;
-      // });
-      
+        const marker = L.marker(shop.coords, { icon: customMarker })
+          .addTo(map)
+          .on('click', () => updateDetails(shop));
+      });
     </script>
   </body>
 </html>
