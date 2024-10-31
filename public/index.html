@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Map and Details</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.min.js"></script>
+
+    <style>
+      body { 
+        display: flex; 
+        margin: 0; 
+        font-family: Arial, sans-serif; 
+      }
+      #map-container { 
+        flex: 1; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+      }
+      #map { 
+        width: 1000px; 
+        height: 800px; 
+        border: 2px solid #000000; 
+        border-radius: 8px; 
+      }
+      #details { 
+        flex: 1; 
+        padding: 20px; 
+      }
+      #legend {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .color-box {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        border-radius: 3px;
+      }
+      .custom-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+      .color-red { background-color: red; }
+      .color-yellow { background-color: #FFC000; }
+      .color-green { background-color: green; }
+    </style>
+  </head>
+  <body>
+    <div id="map-container">
+      <div id="map"></div>
+    </div>
+    <div id="details">
+      <h2>Details</h2>
+      <p>Status</p>
+
+      <!-- Legend Box -->
+      <div id="legend">
+        <h3>Tenant Status</h3>
+        <div class="legend-item">
+          <div class="color-box color-red"></div>
+          <span>Fail</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box color-yellow"></div>
+          <span>Incomplete</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box color-green"></div>
+          <span>Success</span>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      const key = 'zkJF1VBBugMSwdBfSj6r';
+      const map = L.map('map').setView([5.397465532742651, 100.33539585177498], 13);
+
+      L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`, {
+        tileSize: 512,
+        zoomOffset: -1,
+        minZoom: 1,
+        attribution: "<a href='https://www.maptiler.com' target='_blank'>&copy; MapTiler</a> <a href='https://www.openstreetmap.org' target='_blank'>&copy; OpenStreetMap contributors</a>",
+        crossOrigin: true
+      }).addTo(map);
+
+      const rentalShops = [
+        { name: 'Inti College Penang', coords: [5.341881519136846, 100.28189212461939], status: 'fail' },
+        { name: 'Mixue Golden Triangle 2', coords: [5.330639302921124, 100.27511999502838], status: 'success' },
+        { name: 'Project CAN', coords: [5.3840375801625795, 100.30665799502854], status: 'success' },
+        { name: 'Daily Coffee Signature', coords: [5.427623841135085, 100.31660009578769], status: 'fail' },
+        { name: 'Neko Inn', coords: [5.326457817563346, 100.28024611210209], status: 'incomplete' },
+        { name: 'Stanz Games Jungle Enterprise', coords: [5.3971470730658, 100.28546552650256], status: 'success' },
+        { name: 'Danai Wellness Boutique', coords: [5.449641239132698, 100.30632696206948], status: 'incomplete' },
+        { name: 'Cadenza Music Performing & Art Academy', coords: [5.338754284386468, 100.29947518828533], status: 'success' },
+        { name: 'Eco Shop @ Bagan Luar', coords: [5.402275518233011, 100.3686389797176], status: 'success' },
+        { name: 'BebeButterfly Greenlane', coords: [5.390181808360095, 100.30246911942116], status: 'incomplete' }
+      ];
+
+      rentalShops.forEach(shop => {
+        // Default marker
+        // const marker = L.marker(shop.coords).addTo(map).bindPopup(shop.name);
+        
+        // Apply marker color based on status
+        let color;
+        if (shop.status === 'fail') color = 'red';
+        else if (shop.status === 'incomplete') color = '#FFC000';
+        else if (shop.status === 'success') color = 'green';
+
+        const customMarker = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="
+              width: 20px; 
+              height: 20px; 
+              background-color: ${color}; 
+              border-radius: 50% 50% 50% 0;
+              border: 2px solid black; 
+              transform: rotate(-45deg);
+              position: relative;">
+              <div style="
+                position: absolute; 
+                width: 6px; 
+                height: 6px; 
+                background: white; 
+                border-radius: 50%; 
+                top: 6px; 
+                left: 6px;">
+              </div>
+           </div>`,
+    iconSize: [25, 25],
+    iconAnchor: [10, 24] // Anchors the icon bottom center
+  });
+
+      L.marker(shop.coords, { icon: customMarker })
+        .addTo(map)
+        .bindPopup(shop.name);
+    });
+      // Use CSS styling for color if needed
+      //   marker.getElement().style.filter = `hue-rotate(${color === 'red' ? 0 : color === 'yellow' ? 60 : 120}deg)`;
+      // });
+    </script>
+  </body>
+</html>
