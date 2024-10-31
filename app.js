@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const mysql = require('mysql2');
+const mysql = require('mysql2'); // Note: mysql2 is required here for `db.execute`
 const session = require('express-session'); // Import session library
 
 const app = express();
@@ -33,6 +33,26 @@ db.connect(err => {
     }
     console.log('Connected to database.');
 });
+
+// Route to fetch tenant and shop details
+app.get('/api/shops', (req, res) => {
+    const sql = `
+        SELECT tenant.tenant_name, tenant.tenant_ic, tenant.tenant_contact, 
+               shop.shop_name, shop.shop_address, shop.latitude, 
+               shop.longitude, tenant.verification_status 
+        FROM tenant
+        JOIN shop ON tenant.tenant_ic = shop.tenant_ic;
+    `;
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching shops:', err);
+            res.status(500).json({ error: 'Failed to fetch shop details' });
+            return;
+        }
+        res.json(results);
+    });
+});
+
 
 // Redirect to login if not logged in
 app.get('/', (req, res) => {
@@ -77,7 +97,6 @@ app.get('/logout', (req, res) => {
         res.redirect('/login');
     });
 });
-
 
 // Start the server
 app.listen(3000, () => {
