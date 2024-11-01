@@ -1,13 +1,13 @@
 /* public/style.css */
 body {
-    font-family: Arial, sans-serif;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f2f5;
-    margin: 0;
+    margin: 10px;
+    background-image: url("login_background.jpg");
+    background-size: cover;
+    position: relative;
+    font-family: Arial, sans-serif;
 }
+
 
 .login-container {
     width: 300px;

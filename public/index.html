@@ -9,12 +9,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.min.js"></script>
 
     <style>
-      body { 
-        display: flex; 
-        margin: 10;
+      body {
+        display: flex;
+        margin: 10px;
         background-image: url("login_background.jpg");
-        font-family: Arial, sans-serif; 
+        background-size: cover;
+        position: relative;
+        font-family: Arial, sans-serif;
       }
+
+      body::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(255, 255, 255, 0.3); /* Light overlay with 30% opacity */
+          z-index: -1; /* Keeps the overlay behind the content */
+      }
+
 
       #map-container { 
         flex: 1; 
@@ -56,6 +70,26 @@
       .color-green { background-color: green; }
       #logout-button { position: absolute; top: 10px; right: 10px; padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
       #logout-button:hover { background-color: #d32f2f; }
+      .details-box {
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+      .details-box p {
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      #shopDetails p {
+        margin-bottom: 10px; /* Adjust as needed */
+      }
+
+
+
     </style>
   </head>
   <body>
@@ -65,7 +99,9 @@
     </div>
     <div id="details">
       <h2>Details</h2>
-      <p id="shopDetails">Click on a marker to see details.</p>
+      <div id="shopDetails" class="details-box">
+        <p>Click on a marker to see details.</p>
+      </div>
       <!-- Legend Box -->
       <div id="legend">
         <h3>Tenant Status</h3>
@@ -82,6 +118,7 @@
           <span>Success</span>
         </div>
       </div>
+    </div>
     </div>
     
     <script>
@@ -113,14 +150,15 @@
 
       function updateDetails(shop) {
         document.getElementById('shopDetails').innerHTML = `
-            <strong>Tenant Name:</strong> ${shop.tenant_name}<br>
-            <strong>Tenant IC:</strong> ${shop.tenant_ic}<br>
-            <strong>Tenant Contact:</strong> ${shop.tenant_contact}<br>
-            <strong>Shop Name:</strong> ${shop.shop_name}<br>
-            <strong>Address:</strong> ${shop.shop_address}<br>
-            <strong>Status:</strong> ${shop.verification_status.charAt(0).toUpperCase() + shop.verification_status.slice(1)}<br>
+          <p><strong>Tenant Name:</strong> ${shop.tenant_name}</p>
+          <p><strong>Tenant IC:</strong> ${shop.tenant_ic}</p>
+          <p><strong>Tenant Contact:</strong> ${shop.tenant_contact}</p>
+          <p><strong>Shop Name:</strong> ${shop.shop_name}</p>
+          <p><strong>Address:</strong> ${shop.shop_address}</p>
+          <p><strong>Status:</strong> ${shop.verification_status.charAt(0).toUpperCase() + shop.verification_status.slice(1)}</p>
         `;
-    }
+      }
+
 
 
       async function initializeMarkers() {
