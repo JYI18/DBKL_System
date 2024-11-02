@@ -3,11 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <h1>DBKL Store Rental Recognition System (SRRS)</h1>
-    <title>Login</title>
-    <link rel="stylesheet" href="/style.css">
+    <title>DBKL Store Rental Recognition System (SRRS)</title>
+    <style>
+        /* CSS from style.css */
+        body {
+            display: flex;
+            flex-direction: column; /* Align children in a column */
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+            height: 100vh; /* Full height of the viewport */
+            margin: 0; /* Remove default margin */
+            background-image: url("login_background.jpg");
+            background-size: cover;
+            background-position: center; /* Center the background image */
+            font-family: Arial, sans-serif;
+        }
+
+        body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.3); /* Light overlay with 30% opacity */
+        z-index: -1; /* Keeps the overlay behind the content */
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px; /* Add some spacing below the header */
+        }
+
+        .login-container {
+            width: 500px;
+            padding: 2em;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin: 0.5em 0 0.2em;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.5em;
+            margin: 0.5em 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.5em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
+    <h1>DBKL Store Rental Recognition System (SRRS)</h1>
     <div class="login-container">
         <h2>Login</h2>
         <form action="/login" method="POST">
