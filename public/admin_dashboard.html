@@ -14,6 +14,7 @@
         overflow: hidden;
         position: fixed;
         width: 100%;
+        height: 60px;
         top: 0;
         z-index: 1000;
         display: flex;
@@ -29,13 +30,14 @@
         padding: 14px 16px;
         text-decoration: none;
         font-size: 17px;
+        margin: 10px;
       }
 
       /* Style for Logout Button in Navbar */
       .topnav .logout-button {
         background-color: #f44336;
         border: none;
-        color: white;
+        color: #001073;
         padding: 10px 20px;
         cursor: pointer;
         font-size: 16px;
@@ -44,34 +46,32 @@
       }
 
       .topnav .logout-button:hover {
-        background-color: #ff6600;
+        background-color: #fff700;
       }
 
       /* Change the color of links on hover */
       .topnav a:hover {
-        background-color: #ddd;
-        color: black;
+        background-color: #fff700;
+        color: #001073;
       }
 
 
       /* Add a color to the active/current link */
       .topnav a.active {
         background-color: #ff6600;
-        color: white;
+        color: #001073;
       }
 
       /* Adjust the body to account for fixed navbar */
       body {
         display: flex;
-        margin: 10px;
+        margin: 0px;
         padding-top: 60px;
         background-image: url("admin_background.jpg");
         background-size: cover;
         position: relative;
         font-family: Arial, sans-serif;
       }
-
-
 
       h2 {
             color:#001073;
@@ -80,7 +80,8 @@
       #map-container { 
         flex: 1; 
         display: flex; 
-        align-items: center; 
+        align-items: center;
+        margin: 10px; 
         justify-content: center; 
       }
 
@@ -128,12 +129,14 @@
       .color-yellow { background-color: #FFC000; }
       .color-green { background-color: green; }
 
-      #logout-button { position: absolute; 
+      #logout-button { 
+        position: absolute; 
         top: 10px; 
         right: 10px; 
         padding: 10px 20px; 
         background-color: #f44336; 
-        color: white; border: none; 
+        color: white; 
+        border: none; 
         border-radius: 5px; 
         cursor: pointer; 
         font-size: 16px; 
