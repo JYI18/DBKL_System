@@ -2,35 +2,79 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>DBKL Map</title>
+    <title>DBKL System</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.awesome-markers/2.0.4/leaflet.awesome-markers.min.js"></script>
 
     <style>
+      .topnav {
+        background-color: #001073;
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* Style the links inside the navigation bar */
+      .topnav a {
+        float: left;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+
+      /* Style for Logout Button in Navbar */
+      .topnav .logout-button {
+        background-color: #f44336;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+        margin-right: 16px;
+      }
+
+      .topnav .logout-button:hover {
+        background-color: #ff6600;
+      }
+
+      /* Change the color of links on hover */
+      .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+
+
+      /* Add a color to the active/current link */
+      .topnav a.active {
+        background-color: #ff6600;
+        color: white;
+      }
+
+      /* Adjust the body to account for fixed navbar */
       body {
         display: flex;
         margin: 10px;
-        background-image: url("login_background.jpg");
+        padding-top: 60px;
+        background-image: url("admin_background.jpg");
         background-size: cover;
         position: relative;
         font-family: Arial, sans-serif;
       }
 
-      body::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(255, 255, 255, 0.3); /* Light overlay with 30% opacity */
-        z-index: -1; /* Keeps the overlay behind the content */
-      }
+
 
       h2 {
-            color: white;
+            color:#001073;
         }
 
       #map-container { 
@@ -41,9 +85,9 @@
       }
 
       #map { 
-        width: 1000px; 
-        height: 800px; 
-        border: 5px solid #000dff; 
+        width: 920px; 
+        height: 730px; 
+        border: 5px solid #001073; 
         border-radius: 8px; 
       }
 
@@ -56,7 +100,7 @@
       #legend { 
         margin-top: 50px; 
         padding: 10px; 
-        border: 2px solid #000000; 
+        border: 3px solid#001073; 
         border-radius: 5px; 
         background-color: #f9f9f9; 
       }
@@ -99,9 +143,9 @@
 
       .details-box {
         padding: 15px;
-        border: 2px solid #ddd;
+        border: 5px solid #ff6600;
         border-radius: 8px;
-        background-color: #ffffff;
+        background-color: #fff3a4;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
     }
@@ -112,7 +156,7 @@
       }
 
       #shopDetails p {
-        margin-bottom: 10px; /* Adjust as needed */
+        margin-bottom: 10px;
       }    
   
 
@@ -120,7 +164,19 @@
     </style>
   </head>
   <body>
-    <button id="logout-button" onclick="logout()">Logout</button>
+    <!-- Top Navigation Bar -->
+    <div class="topnav">
+      <div>
+        <a href="/admin_dashboard.html" class="active">Home</a>
+        <a href="/tenant_list.html">Tenants</a>
+
+        <!-- <a href="/about">About</a>
+        <a href="/contact">Contact</a> -->
+      </div>
+      <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- <button id="logout-button" onclick="logout()">Logout</button> -->
     <div id="map-container">
       <div id="map"></div>
     </div>
@@ -150,8 +206,9 @@
     
     <script>
       function logout() {
-        window.location.href = '/logout';
+        window.location.href = '/admin_logout';
       }
+
 
       const key = 'zkJF1VBBugMSwdBfSj6r';
       const map = L.map('map').setView([5.397465532742651, 100.33539585177498], 13);
@@ -168,7 +225,7 @@
         try {
           const response = await fetch('/api/shops');
           const shops = await response.json();
-          console.log('Fetched shop data:', shops); // Debug line
+          console.log('Fetched shop data:', shops);
           return shops;
         } catch (error) {
           console.error('Error fetching shop data:', error);
@@ -182,19 +239,17 @@
           <p><strong>Tenant Contact:</strong> ${shop.tenant_contact}</p>
           <p><strong>Shop Name:</strong> ${shop.shop_name}</p>
           <p><strong>Address:</strong> ${shop.shop_address}</p>
-          <p><strong>Status:</strong> ${shop.verification_status.charAt(0).toUpperCase() + shop.verification_status.slice(1)}</p>
+          <p><strong>Status:</strong> ${shop.result.charAt(0).toUpperCase() + shop.result.slice(1)}</p>
         `;
       }
-
-
 
       async function initializeMarkers() {
         const shops = await fetchShopData();
         shops.forEach(shop => {
-          let color;
-          if (shop.verification_status === 'fail') color = 'red';
-          else if (shop.verification_status === 'incomplete') color = '#FFC000';
-          else if (shop.verification_status === 'success') color = 'green';
+          let color = 'gray';
+          if (shop.result === 'fail') color = 'red';
+          else if (shop.result === 'incomplete') color = '#FFC000';
+          else if (shop.result === 'success') color = 'green';
 
           const customMarker = L.divIcon({
             className: 'custom-marker',
