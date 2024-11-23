@@ -19,17 +19,6 @@
             font-family: Arial, sans-serif;
         }
 
-        body::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(255, 255, 255, 0.3); /* Light overlay with 30% opacity */
-        z-index: -1; /* Keeps the overlay behind the content */
-        }
-
         h1 {
             color: white;
             text-align: center;
@@ -78,7 +67,7 @@
     <h1>DBKL Store Rental Recognition System (SRRS)</h1>
     <div class="login-container">
         <h2>Login</h2>
-        <form action="/login" method="POST">
+        <form action="/admin_login" method="POST">
             <label for="username">Username:</label>
             <input type="text" name="username" id="username" required>
             <label for="password">Password:</label>
