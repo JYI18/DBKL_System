@@ -34,14 +34,13 @@ db.connect(err => {
     console.log('Connected to database.');
 });
 
-// Route to fetch tenant and shop details
 app.get('/api/shops', (req, res) => {
     const sql = `
         SELECT tenant.tenant_name, tenant.tenant_ic, tenant.tenant_contact, 
-               shop.shop_name, shop.shop_address, shop.latitude, 
-               shop.longitude, tenant.verification_status 
+               tenant.shop_name, tenant.shop_address, tenant.latitude, 
+               tenant.longitude, recognition_result.result
         FROM tenant
-        JOIN shop ON tenant.tenant_ic = shop.tenant_ic;
+        JOIN recognition_result ON tenant.tenant_ic = recognition_result.tenant_ic;
     `;
     db.query(sql, (err, results) => {
         if (err) {
@@ -53,23 +52,53 @@ app.get('/api/shops', (req, res) => {
     });
 });
 
+// Add API endpoint for fetching tenants
+app.get('/api/tenants', (req, res) => {
+    const { tenant_ic = '', result = '' } = req.query; // Update the query parameter to 'result'
+
+    const sql = `
+        SELECT tenant.*, recognition_result.result
+        FROM tenant
+        JOIN recognition_result ON tenant.tenant_ic = recognition_result.tenant_ic
+        WHERE (tenant.tenant_ic = ? OR ? = '')
+        AND (recognition_result.result = ? OR ? = '');
+    `;
+
+    db.query(sql, [tenant_ic, tenant_ic, result, result], (err, results) => {
+        if (err) {
+            console.error('Error fetching tenants:', err);
+            return res.status(500).json({ error: 'Failed to fetch tenants' });
+        }
+        res.json(results);
+    });
+});
+
+
+// Serve tenants.html
+app.get('/tenant_list.html', (req, res) => {
+    if (req.session.loggedIn) {
+        res.sendFile(path.join(__dirname, 'public', 'tenant_list.html'));
+    } else {
+        res.redirect('/admin_login');
+    }
+});
 
 // Redirect to login if not logged in
 app.get('/', (req, res) => {
     if (req.session.loggedIn) {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+        res.sendFile(path.join(__dirname, 'public', 'admin_dashboard.html'));
     } else {
-        res.redirect('/login');
+        res.redirect('/admin_login');
     }
 });
 
 // Serve the login page
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+app.get('/admin_login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin_login.html'));
 });
 
 // Handle login form submission
-app.post('/login', (req, res) => {
+app.post('/admin_login', (req, res) => {
     const { username, password } = req.body;
 
     const query = 'SELECT * FROM admin_officer WHERE adminUsername = ? AND adminPassword = ?';
@@ -89,12 +118,12 @@ app.post('/login', (req, res) => {
 });
 
 // Handle logout
-app.get('/logout', (req, res) => {
+app.get('/admin_logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             console.error(err);
         }
-        res.redirect('/login');
+        res.redirect('/admin_login');
     });
 });
 
