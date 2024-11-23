@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Tenants</title>
+    <style>
+        /* Original Top Navigation Bar */
+        .topnav {
+            background-color: #0008ff;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #ff6600;
+            color: white;
+        }
+
+        .topnav .logout-button {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-right: 16px;
+        }
+
+        .topnav .logout-button:hover {
+            background-color: #ff6600;
+        }
+
+        /* Body and Layout Styling */
+        /* Adjust the body to account for fixed navbar */
+        body {
+            display: flex;
+            margin: 10px;
+            padding-top: 50px;
+            background-image: url("login_background.jpg");
+            background-size: cover;
+            position: relative;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.3); /* Light overlay with 30% opacity */
+            background-size: cover;
+            position: relative;
+            z-index: -1; /* Keeps the overlay behind the content */
+        }
+
+        .container {
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: calc(100vh - 60px);
+            overflow-y: auto;
+            position: relative;
+            top: 60px; /* Account for fixed navbar */
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filters input, .filters select, .filters button {
+            padding: 8px;
+            font-size: 1rem;
+        }
+
+        .filters button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .filters button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Status Colors */
+        .status-success {
+            color: green;
+        }
+
+        .status-incomplete {
+            color: orange;
+        }
+
+        .status-fail {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="topnav">
+        <div>
+            <a href="/admin_dashboard.html">Home</a>
+            <a href="/tenant_list.html" class="active">Tenants</a>
+        </div>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+        <h1>View Tenants</h1>
+
+        <!-- Filters -->
+        <div class="filters">
+            <input type="text" id="searchIc" placeholder="Search by IC">
+            <select id="statusFilter">
+                <option value="">All Tenants</option>
+                <option value="success">Success</option>
+                <option value="incomplete">Incomplete</option>
+                <option value="fail">Fail</option>
+            </select>
+            <button onclick="fetchTenants()">Search</button>
+        </div>
+
+        <!-- Tenant Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>IC</th>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tenantList">
+                <tr>
+                    <td colspan="4">No data available</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch Tenants Function
+        function fetchTenants() {
+        const searchIc = document.getElementById('searchIc').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        // Helper function to capitalize the first letter
+        function capitalizeFirstLetter(string) {
+            if (!string) return '';
+            return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+        }
+
+        // Fetch data from API
+        fetch(`/api/tenants?tenant_ic=${searchIc}&result=${statusFilter}`)
+            .then(response => response.json())
+            .then(data => {
+                const tenantList = document.getElementById('tenantList');
+                tenantList.innerHTML = '';
+
+                if (data.length > 0) {
+                    data.forEach(tenant => {
+                        const row = document.createElement('tr');
+                        const statusClass = `status-${tenant.result.toLowerCase()}`;
+                        row.innerHTML = `
+                            <td>${tenant.tenant_ic}</td>
+                            <td>${tenant.tenant_name}</td>
+                            <td>${tenant.tenant_contact}</td>
+                            <td class="${statusClass}">${capitalizeFirstLetter(tenant.result)}</td>
+                        `;
+                        tenantList.appendChild(row);
+                    });
+                } else {
+                    tenantList.innerHTML = `
+                        <tr>
+                            <td colspan="4">No tenants found</td>
+                        </tr>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching tenants:', error);
+            });
+    }
+
+        // Logout Function
+        function logout() {
+            window.location.href = '/admin_logout';
+        }
+
+        // Fetch all tenants on page load
+        document.addEventListener('DOMContentLoaded', fetchTenants);
+    </script>
+</body>
+</html>
