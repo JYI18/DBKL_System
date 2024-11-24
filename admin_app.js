@@ -83,7 +83,7 @@ app.get('/api/tenants', (req, res) => {
 // Serve tenants.html
 app.get('/tenant_list.html', (req, res) => {
     if (req.session.loggedIn) {
-        res.sendFile(path.join(__dirname, 'public', 'tenant_list.html'));
+        res.sendFile(path.join(__dirname, 'admin_page', 'tenant_list.html'));
     } else {
         res.redirect('/admin_login');
     }
@@ -92,7 +92,7 @@ app.get('/tenant_list.html', (req, res) => {
 // Redirect to login if not logged in
 app.get('/', (req, res) => {
     if (req.session.loggedIn) {
-        res.sendFile(path.join(__dirname, 'public', 'admin_dashboard.html'));
+        res.sendFile(path.join(__dirname, 'admin_page', 'admin_dashboard.html'));
     } else {
         res.redirect('/admin_login');
     }
@@ -100,7 +100,7 @@ app.get('/', (req, res) => {
 
 // Serve the login page
 app.get('/admin_login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin_login.html'));
+    res.sendFile(path.join(__dirname, 'admin_page', 'admin_login.html'));
 });
 
 // Handle login form submission
