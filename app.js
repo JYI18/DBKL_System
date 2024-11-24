@@ -37,9 +37,10 @@ db.connect(err => {
 app.get('/api/shops', (req, res) => {
     const sql = `
         SELECT tenant.tenant_name, tenant.tenant_ic, tenant.tenant_contact, 
-               tenant.shop_name, tenant.shop_address, tenant.latitude, 
-               tenant.longitude, recognition_result.result
+               shop.shop_name, shop.shop_address, shop.latitude, 
+               shop.longitude, recognition_result.result
         FROM tenant
+        JOIN shop ON tenant.tenant_ic = shop.tenant_ic
         JOIN recognition_result ON tenant.tenant_ic = recognition_result.tenant_ic;
     `;
     db.query(sql, (err, results) => {
@@ -52,26 +53,31 @@ app.get('/api/shops', (req, res) => {
     });
 });
 
+
 // Add API endpoint for fetching tenants
 app.get('/api/tenants', (req, res) => {
-    const { tenant_ic = '', result = '' } = req.query; // Update the query parameter to 'result'
+    const { tenant_ic = '', result = '' } = req.query;
 
     const sql = `
-        SELECT tenant.*, recognition_result.result
+        SELECT tenant.*, recognition_result.result, shop.shop_name, shop.shop_address
         FROM tenant
-        JOIN recognition_result ON tenant.tenant_ic = recognition_result.tenant_ic
+        LEFT JOIN recognition_result ON tenant.tenant_ic = recognition_result.tenant_ic
+        LEFT JOIN shop ON tenant.tenant_ic = shop.tenant_ic
         WHERE (tenant.tenant_ic = ? OR ? = '')
         AND (recognition_result.result = ? OR ? = '');
+
     `;
 
     db.query(sql, [tenant_ic, tenant_ic, result, result], (err, results) => {
         if (err) {
             console.error('Error fetching tenants:', err);
-            return res.status(500).json({ error: 'Failed to fetch tenants' });
+            res.status(500).json({ error: 'Failed to fetch tenants' });
+            return;
         }
         res.json(results);
     });
 });
+
 
 
 // Serve tenants.html
